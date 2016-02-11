@@ -7,3 +7,4 @@
 void init_niveau(Arbre A);
 void init_angles(Arbre A);
 void affiche_commande(Arbre A);
+int hauteur(Arbre A);

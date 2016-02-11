@@ -7,11 +7,7 @@
 Arbre creer_arbre(){
   Arbre A = malloc(sizeof(struct Noeud));
   A -> pere = NULL;
-  // gcc refuse A -> fils = {NULL};
-  int i;
-  for(i = 0; i < FILS_MAX; i++){
-    A -> fils[i] = NULL;
-  }
+  memset(A -> fils, NULL, FILS_MAX * sizeof(int));
   return A;
 }
 
