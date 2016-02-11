@@ -9,6 +9,7 @@
 /**
 * \brief Cette fonction ajoute une feuille à un arbre de manière aléatoire
 * \param A l'arbre à traiter
+* \return s'il y a eu un ajout, 0 sinon
 */
 
 int ajoute_feuille_rnd(Arbre A){
