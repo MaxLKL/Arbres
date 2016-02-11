@@ -26,8 +26,10 @@ int ajoute_feuille_rnd(Arbre A){
     ajoute_fils(A);
     return 1;
   }
-  else
+  else if(test != i)                             // sans cette condition on a parfois une segfault car A -> fils[i] est interdit
     return ajoute_feuille_rnd(A -> fils[test]);
+  else
+    return 0;
 }
 
 /**
