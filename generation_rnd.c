@@ -11,21 +11,22 @@
 * \param A l'arbre à traiter
 */
 
-void ajoute_feuille_rnd(Arbre A){
+int ajoute_feuille_rnd(Arbre A){
   int i = 0;
   if(A == NULL)
-    return;
+    return 0;
 
   while(i < FILS_MAX && A -> fils[i] != NULL){    // on cherche le nombre de fils de A
     i++;
   }
   int test = rand() % (i + 1);
   
-  if (i == 0 || i != FILS_MAX || test == i)   // si le sommet n'a pas de fils on est obligé d'en rajouter un. S'il est saturé on ne peut pas en ajouter.
+  if (i == 0 || (i != FILS_MAX && test == i)){   // si le sommet n'a pas de fils on est obligé d'en rajouter un. S'il est saturé on ne peut pas en ajouter.
     ajoute_fils(A);
-
+    return 1;
+  }
   else
-    ajoute_feuille_rnd(A -> fils[test]);
+    return ajoute_feuille_rnd(A -> fils[test]);
 }
 
 /**
@@ -33,9 +34,9 @@ void ajoute_feuille_rnd(Arbre A){
 * \param  A, taille L'arbre à traiter et sa taille
 */
 void genere_alea(Arbre A, int taille){
-  while(taille >= 0){
-    ajoute_feuille_rnd(A);
-    taille --;
+  while(taille > 0){
+    if (ajoute_feuille_rnd(A))
+      taille --;
   }
 }
 
