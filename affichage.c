@@ -8,62 +8,6 @@
 #endif
 
 /**
-* \brief  Cette fonction initialise les angles d'un arbre
-* \details On initialise l'angle de la racine à 2 pi puis on divise récursivement les secteurs angulaires des enfants.
-* \param A l'arbre à initialiser 
-*/
-/*
-void init_angles(Arbre A){
-  if(A == NULL)
-    return;
-
-  if(A -> pere == NULL)
-    A -> angle = 2 * M_PI;
-
-  int i, j;
-  if(A -> fils[0] != NULL){
-
-    for(i = 0; i < A -> fils[0] -> freres; i++){
-      j = i - (A -> fils[0] -> freres / 2.0);
-      
-      A -> fils[i] -> angle = (A -> angle) + (A -> angle / A -> fils[i] -> freres) * j;
-
-      if(i == 0)                                    //ces deux tests evitent les recouvrements entre voisins.
-        A -> fils[i] -> angle += 0.25;
-      if(i == A -> fils[0] -> freres - 1)
-        A -> fils[i] -> angle -= 0.25;
-    }
-
-    for(i = 0; i < A -> fils[0] -> freres; i++){
-      init_angles(A -> fils[i]);
-    }
-  }
-}*/
-
-void init_angles(Arbre A){
-  if(A == NULL)
-    return;
-  if(A -> pere == NULL){
-    A -> angle = 2 * M_PI;
-    A -> position = 1;
-  }
-  // A partir d'ici A -> angle a nécessairement été initialisé
-  
-  double deb = A -> angle - (A -> angle / A -> position);   //  deb contient le debut de l'intervalle où on a le droit de mettre des enfants
-  double pas = A -> angle / A -> nbEnfants;            //  pas correspond à la distance entre chaque enfant
-  int i;
-
-  for(i = 0; i < A -> nbEnfants; i++){
-    A -> fils[i] -> position = i;
-    A -> fils[i] -> angle = deb + i*pas;
-    if(i == 0 && A -> pere != NULL)
-      A -> fils[0] -> angle += pas / 2;        //  on veut eviter de recouvrir le cousin en derniere position du précédent intervalle
-    init_angles(A -> fils[i]); 
-  }
-
-}
-
-/**
 * \brief Cette fonction initialise les niveaux de l'arbre récursivement.
 * \details  Les niveaux sont les distances à la racine. On s'en sert pour calculer le cercle sur lequel placer le sommet
 * \param  A L'arbre à initialiser
@@ -87,6 +31,7 @@ void init_niveau(Arbre A){
 * \brief Cette fonction calcule récursivement la hauteur d'un arbre.
 * \param A L'arbre à traiter
 */
+
 int hauteur(Arbre A){
   if(A == NULL)
     return -1;
@@ -104,54 +49,52 @@ int hauteur(Arbre A){
 }
 
 /**
-* \brief Cette fonction calcule les coordonnées cartésiennes d'un sommet
-* \param A le sommet initialisé à traiter
+* \brief Cette fonction convertit des coordonnées angulaires en coordonnées cartésiennes.
 * \return Le point où placer le sommet
 */
 
-POINT coord_sommet(Arbre A, int h){
+POINT conversion(POINT origine, int rayon, double angle){
   POINT P;
-  if(A -> pere == NULL){
-    P.x = TAILLE_FEN / 2;
-    P.y = TAILLE_FEN / 2;
-    return P;
-  }
-  P.x = TAILLE_FEN / 2 + cos(A -> angle) * TAILLE_FEN / 2 * (double)A -> niveau / (double)h;
-  P.y = TAILLE_FEN / 2 + sin(A -> angle) * TAILLE_FEN / 2 * (double)A -> niveau / (double)h;
+  P.x = origine.x + cos(angle) * rayon;     // origine = angle dans le nouveau repere
+  P.y = origine.y + sin(angle) * rayon;
   return P;
 }
 
-void affiche_arbre(Arbre A, int hauteur){
+int rayon(Arbre A){
+  return TAILLE_FEN / (hauteur(A)*2);
+}
+
+void init_coord(Arbre A, double total, int rayon){
   if(A == NULL)
     return;
-  draw_fill_circle(coord_sommet(A, hauteur), 5, rouge);
-  int i;
-  for(i = 0; i < FILS_MAX; i++){
-    affiche_arbre(A -> fils[i], hauteur);
+
+  if(A -> pere == NULL){
+    A -> coord.x = TAILLE_FEN / 2;
+    A -> coord.y = TAILLE_FEN / 2;
+    total = 2 * M_PI;
+  }
+
+  POINT nv_origine;
+  double phi;
+
+  for(i = 0; i < nbEnf ; i++){
+    phi = i * total / A -> nbEnfants;
+    // changement de repère
+    nv_origine.x = cos(phi) * x - sin(phi) * y;
+    nv_origine.y = sin(phi) * x + cos(phi) * y;
+    
+    A -> fils[i] -> coord = conversion(nv_origine, rayon, -(total/nbEnfants)/2);
+    init_coord(A -> fils[i], phi, rayon);
   }
 }
 
-void affiche_segments(Arbre A, int hauteur){
+void dessine_arbre(Arbre A){
   if(A == NULL)
     return;
-  int i = 0;
-  while(A -> fils[i] != NULL && i < FILS_MAX){
-    draw_line(coord_sommet(A, hauteur), coord_sommet(A -> fils[i], hauteur), blanc);
-    i++;
-  }
-  i = 0;
-  while(A -> fils[i] != NULL && i < FILS_MAX){
-    affiche_segments(A -> fils[i], hauteur);
-    i++;
-  }
-}
 
-void affiche_commande(Arbre A){
-  if(A==NULL)
-    return;
-  //printf("A:%p, lvl:%d, angle:%f, freres: %d \n", A, A -> niveau, A -> angle, A -> freres);
+  draw_fill_circle(A -> coord, 5, rouge);
+
   int i;
-  for(i = 0; i < FILS_MAX; i++){
-    affiche_commande(A -> fils[i]);
-  }
+  for(i = 0; i < nbEnfants; i++)
+    dessine_arbre(A -> fils[i]);
 }

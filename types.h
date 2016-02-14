@@ -2,13 +2,12 @@
 #define TYPES_H
 #define FILS_MAX 5
 #define TAILLE_FEN 500
+#include "graphics.h"
 
 
 struct Noeud{
   int niveau;
-  int position;
-  double angle;		//	la position angulaire du sommet
-  int nbEnfants;
+  POINT coord;
   struct Noeud* pere;
   struct Noeud* fils[FILS_MAX];
 };

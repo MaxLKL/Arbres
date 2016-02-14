@@ -13,14 +13,14 @@
 int main(int argc, char** argv){
   srand(time(NULL));
   while(1){
-  Arbre A = genere_alea(A, 10);
+  Arbre A = genere_alea(A, 80);
   
   init_niveau(A);
   init_angles(A);
   init_graphics(TAILLE_FEN, TAILLE_FEN);
   
   affiche_arbre(A, hauteur(A));
-  affiche_segments(A, hauteur(A));
+  //affiche_segments(A, hauteur(A));
   wait_clic();
 }
   return 0;
