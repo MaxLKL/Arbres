@@ -43,25 +43,27 @@ void init_angles(Arbre A){
 void init_angles(Arbre A){
   if(A == NULL)
     return;
-  if(A -> pere == NULL)
+  if(A -> pere == NULL){
     A -> angle = 2 * M_PI;
+    A -> position = 1;
+  }
   // A partir d'ici A -> angle a nécessairement été initialisé
   
-  double deb = A -> angle - A -> angle/2;   //  deb contient le debut de l'intervalle où on a le droit de mettre des enfants
+  double deb = A -> angle - (A -> angle / A -> position);   //  deb contient le debut de l'intervalle où on a le droit de mettre des enfants
   int nbEnf = 0;
   while(nbEnf < FILS_MAX && A -> fils[nbEnf] != NULL)
     nbEnf ++;
 
-  double pas = A -> angle/nbEnf;            //  pas correspond à la distance entre chaque enfant
+  double pas = A -> angle / nbEnf;            //  pas correspond à la distance entre chaque enfant
   int i;
   for(i = 0; i < nbEnf; i++){
+    A -> fils[i] -> position = i;
     A -> fils[i] -> angle = deb + i*pas;
-    
     if(i == 0 && A -> pere != NULL)
-      A -> fils[i] -> angle += pas / 2;        //  on veut eviter de recouvrir le cousin en derniere position du précédent intervalle
+      A -> fils[0] -> angle += pas / 2;        //  on veut eviter de recouvrir le cousin en derniere position du précédent intervalle
+    init_angles(A -> fils[i]); 
   }
-  for(i = 0; i < nbEnf; i++)
-    init_angles(A -> fils[i]);
+
 }
 
 /**

@@ -7,6 +7,7 @@
 Arbre creer_arbre(){
   Arbre A = malloc(sizeof(struct Noeud));
   A -> pere = NULL;
+  A -> nbEnfants = 0;
   memset(A -> fils, NULL, FILS_MAX * sizeof(int));
   return A;
 }
@@ -25,6 +26,7 @@ Arbre ajoute_fils(Arbre A){
   else{
     A -> fils[i] = creer_arbre();
     A -> fils[i] -> pere = A;
+    A -> nbEnfants++;
     return A;
   }
 }

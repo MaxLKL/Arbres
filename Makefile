@@ -10,10 +10,12 @@ endif
 
 all: $(EXEC) clean
 
-$(EXEC): main.o fonctions_base.o generation_rnd.o affichage.o graphics.o
+$(EXEC): main.o fonctions_base.o generation_rnd.o affichage.o graphics.o centre_files.o
 	$(CC) $^ -o $(EXEC) $(CFLAGS) `sdl-config --libs` -lSDL_ttf -lm
 
-main.o: affichage.h fonctions_base.h types.h generation_rnd.h graphics.h
+
+main.o: centre_files.h affichage.h fonctions_base.h types.h generation_rnd.h graphics.h 
+centre_files.o: types.h
 affichage.o: types.h graphics.h
 fonctions_base.o: types.h
 generation_rnd.o: types.h fonctions_base.h
