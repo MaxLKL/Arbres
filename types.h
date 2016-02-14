@@ -1,11 +1,12 @@
 #ifndef TYPES_H
 #define TYPES_H
 #define FILS_MAX 5
+#define TAILLE_FEN 500
+
 
 struct Noeud{
   int niveau;
-  double angle;
-  int pos_angle;
+  double angle;		//	la position angulaire du sommet
   struct Noeud* pere;
   struct Noeud* fils[FILS_MAX];
 };

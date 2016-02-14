@@ -5,7 +5,6 @@
 #include "types.h"
 #include "graphics.h"
 #include <math.h>
-#define TAILLE_FEN 500
 #endif
 
 /**
@@ -13,27 +12,56 @@
 * \details On initialise l'angle de la racine à 2 pi puis on divise récursivement les secteurs angulaires des enfants.
 * \param A l'arbre à initialiser 
 */
+/*
+void init_angles(Arbre A){
+  if(A == NULL)
+    return;
+
+  if(A -> pere == NULL)
+    A -> angle = 2 * M_PI;
+
+  int i, j;
+  if(A -> fils[0] != NULL){
+
+    for(i = 0; i < A -> fils[0] -> freres; i++){
+      j = i - (A -> fils[0] -> freres / 2.0);
+      
+      A -> fils[i] -> angle = (A -> angle) + (A -> angle / A -> fils[i] -> freres) * j;
+
+      if(i == 0)                                    //ces deux tests evitent les recouvrements entre voisins.
+        A -> fils[i] -> angle += 0.25;
+      if(i == A -> fils[0] -> freres - 1)
+        A -> fils[i] -> angle -= 0.25;
+    }
+
+    for(i = 0; i < A -> fils[0] -> freres; i++){
+      init_angles(A -> fils[i]);
+    }
+  }
+}*/
 
 void init_angles(Arbre A){
   if(A == NULL)
     return;
-  if(A -> pere == NULL){
+  if(A -> pere == NULL)
     A -> angle = 2 * M_PI;
-    A -> pos_angle = 0;
-  }
-  int j = 0;
-  while(A -> fils[j] != NULL && j < FILS_MAX){
-    j++;
-  }
+  // A partir d'ici A -> angle a nécessairement été initialisé
+  
+  double deb = A -> angle - A -> angle/2;   //  deb contient le debut de l'intervalle où on a le droit de mettre des enfants
+  int nbEnf = 0;
+  while(nbEnf < FILS_MAX && A -> fils[nbEnf] != NULL)
+    nbEnf ++;
+
+  double pas = A -> angle/nbEnf;            //  pas correspond à la distance entre chaque enfant
   int i;
-  for(i = 0; i < j; i++){
-        A -> fils[i] -> angle = A -> angle/j;
-        if(A -> fils[i] -> angle >= M_PI)     // si on a un angle > pi on aura des croisements 
-          A -> fils[i] -> angle = M_PI;
-        
-        A -> fils[i] -> pos_angle = i;
-        init_angles(A -> fils[i]);
+  for(i = 0; i < nbEnf; i++){
+    A -> fils[i] -> angle = deb + i*pas;
+    
+    if(i == 0 && A -> pere != NULL)
+      A -> fils[i] -> angle += pas / 2;        //  on veut eviter de recouvrir le cousin en derniere position du précédent intervalle
   }
+  for(i = 0; i < nbEnf; i++)
+    init_angles(A -> fils[i]);
 }
 
 /**
@@ -82,18 +110,47 @@ int hauteur(Arbre A){
 * \return Le point où placer le sommet
 */
 
-POINT coord_sommet(Arbre A){
+POINT coord_sommet(Arbre A, int h){
   POINT P;
-  int h = hauteur(A);
-  P.x = cos(A -> angle * A -> pos_angle) * A -> niveau * TAILLE_FEN / h;
-  P.x = sin(A -> angle * A -> pos_angle) * A -> niveau * TAILLE_FEN / h;
+  if(A -> pere == NULL){
+    P.x = TAILLE_FEN / 2;
+    P.y = TAILLE_FEN / 2;
+    return P;
+  }
+  P.x = TAILLE_FEN / 2 + cos(A -> angle) * TAILLE_FEN / 2 * (double)A -> niveau / (double)h;
+  P.y = TAILLE_FEN / 2 + sin(A -> angle) * TAILLE_FEN / 2 * (double)A -> niveau / (double)h;
   return P;
+}
+
+void affiche_arbre(Arbre A, int hauteur){
+  if(A == NULL)
+    return;
+  draw_fill_circle(coord_sommet(A, hauteur), 5, rouge);
+  int i;
+  for(i = 0; i < FILS_MAX; i++){
+    affiche_arbre(A -> fils[i], hauteur);
+  }
+}
+
+void affiche_segments(Arbre A, int hauteur){
+  if(A == NULL)
+    return;
+  int i = 0;
+  while(A -> fils[i] != NULL && i < FILS_MAX){
+    draw_line(coord_sommet(A, hauteur), coord_sommet(A -> fils[i], hauteur), blanc);
+    i++;
+  }
+  i = 0;
+  while(A -> fils[i] != NULL && i < FILS_MAX){
+    affiche_segments(A -> fils[i], hauteur);
+    i++;
+  }
 }
 
 void affiche_commande(Arbre A){
   if(A==NULL)
     return;
-  printf("A:%p ; lvl:%d ; pere:%p ; Angle:%f ; Pos :%d, h:%d \n", A, A -> niveau, A -> pere, A -> angle, A -> pos_angle, hauteur(A));
+  //printf("A:%p, lvl:%d, angle:%f, freres: %d \n", A, A -> niveau, A -> angle, A -> freres);
   int i;
   for(i = 0; i < FILS_MAX; i++){
     affiche_commande(A -> fils[i]);

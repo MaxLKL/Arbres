@@ -3,4 +3,4 @@
 #include "types.h"
 #endif
 
-int genere_alea(Arbre A, int taille);
+Arbre genere_alea(Arbre A, int taille);

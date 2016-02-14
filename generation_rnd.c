@@ -36,10 +36,12 @@ int ajoute_feuille_rnd(Arbre A){
 * \brief  Cette fonction génère un arbre aléatoire
 * \param  A, taille L'arbre à traiter et sa taille
 */
-void genere_alea(Arbre A, int taille){
-  while(taille > 0){
+Arbre genere_alea(Arbre A, int taille){
+  A = creer_arbre();
+  while(taille > 1){      // taille > 1 et pas 0 car creer arbre ajoute une racine
     if (ajoute_feuille_rnd(A))
       taille --;
   }
+  return A;
 }
 

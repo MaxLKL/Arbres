@@ -8,3 +8,6 @@ void init_niveau(Arbre A);
 void init_angles(Arbre A);
 void affiche_commande(Arbre A);
 int hauteur(Arbre A);
+void affiche_arbre(Arbre A, int hauteur);
+void affiche_segments(Arbre A, int hauteur);
+void init_freres(Arbre A);
